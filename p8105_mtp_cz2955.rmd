@@ -89,48 +89,40 @@ Ans: (1) As the histogram shown, there are some ">=5mm" eop_size that are under 
 ## Q2: Visualization
 ### (a): 
 ```{r}
-data_filtered <- data_clean %>%
-  mutate(age_group = droplevels(age_group))
-
-p3 <- ggplot(data_filtered, aes(x = sex, y = fhp_size_mm)) +
-  geom_jitter(aes(color = sex), width = 0.2, alpha = 0.5, size = 2) +
-  geom_boxplot(alpha = 0.2, width = 0.3, outlier.shape = NA, fill = "grey80") +
-  stat_summary(fun = mean, geom = "point", shape = 21, size = 4, fill = "black", color = "black") +
-  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), 
-               geom = "errorbar", width = 0.2, size = 1, color = "black") +
-  labs(
-    x = "Sex",
-    y = "FHP Size (mm)",
-    title = "FHP Size Distribution with Mean and SD by Sex"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-
-#### Increase rate ####
 data_clean <- data_clean %>%
-  mutate(eop_increase = ifelse(eop_visibility_classification %in% c("0","1","0-5 mm"), "No Increase", "Increase")) 
+  mutate(EEOP = ifelse(eop_size_mm > 10, TRUE, FALSE))
 
-rate_data <- data_clean %>%
+p3 <- data_clean %>%
+  ggplot(aes(x = age_group, y = fhp_size_mm, fill = sex)) +
+  geom_violin(trim = FALSE, alpha = 0.6) +
+  geom_boxplot(width = 0.1, outlier.shape = NA, position = position_dodge(0.9)) +
+  labs(
+    x = "Age Group (years)",
+    y = "Forward Head Protraction Size (mm)",
+    title = "Distribution of FHP by Age and Sex"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top") +
+  scale_fill_manual(values = c("black", "white"))
+
+
+p4_data <- data_clean %>%
   group_by(age_group, sex) %>%
-  summarise(
-    total = n(),
-    increase_n = sum(eop_increase == "Increase"),
-    increase_rate = increase_n / total
-  ) 
-########################
+  summarise(rate = mean(EEOP, na.rm = TRUE)) %>%
+  ungroup()
 
-
-p4<-ggplot(rate_data, aes(x = age_group, y = increase_rate, fill = sex)) +
-  geom_col(position = "dodge") +
+p4 <- p4_data %>%
+  ggplot(aes(x = age_group, y = rate, group = sex, shape = sex)) +
+  geom_line(aes(linetype = sex)) +
+  geom_point(size = 3, fill = "white") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   labs(
-    x = "Age Group",
-    y = "EOP Increase Rate",
-    title = "Proportion of Participants with Increased EOP by Age and Sex",
-    fill = "Sex"
+    x = "Age Group (years)",
+    y = "Rate of Enlarged EOP",
+    title = "Proportion of Participants with Enlarged EOP"
   ) +
-  theme_minimal()
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
 
 p3 + p4
 ```
