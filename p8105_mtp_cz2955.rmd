@@ -75,7 +75,7 @@ age_sex_table <- table(data_clean$age_group, data_clean$sex)
 age_sex_table_filtered <- age_sex_table[rownames(age_sex_table) != "18-", ]
 age_sex_table_filtered
 ```
-Ans: I deleted the first eight rows of the original dataset, replaced the NA values for “eop_size_mm” with “0”, and then replaced the categorical variables with feature factors. There are total `r n_participants`participants. The age and gender distribution is shown in the table above.
+Ans: I deleted the first eight rows of the original dataset, replaced the NA values for “eop_size_mm” with “0”, and then replaced the categorical variables with feature factors. There are total `r n_participants`participants (I delete 2 because they are under 18). The age and gender distribution is shown in the table above.
 
 ### (c): 
 ```{r}
